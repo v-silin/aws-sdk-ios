@@ -224,9 +224,11 @@ static int defaultChunkSize = 1024;
     if (self.APIKey) {
         [request addValue:self.APIKey forHTTPHeaderField:AWSAPIGatewayAPIKeyHeader];
     }
-
+    
+    // MARK: Addition: support non mantle object conversion
+    
     NSError *error = nil;
-    if (body != nil) {
+    if (body != nil && [body conformsToProtocol:@protocol(AWSMTLJSONSerializing)]) {
         NSDictionary *bodyParameters = [[AWSMTLJSONAdapter JSONDictionaryFromModel:body] aws_removeNullValues];
         request.HTTPBody = [NSJSONSerialization dataWithJSONObject:bodyParameters
                                                            options:0
@@ -234,7 +236,13 @@ static int defaultChunkSize = 1024;
         if (!request.HTTPBody) {
             AWSDDLogError(@"Failed to serialize a request body. %@", error);
         }
+    } else if ([body isKindOfClass:NSDictionary.class] || [body isKindOfClass:NSArray.class]) {
+        request.HTTPBody = [NSJSONSerialization dataWithJSONObject:body
+                                                           options:0
+                                                             error:&error];
     }
+    
+    // MARK: END Addition: support non mantle object conversion
 
     // Refreshes credentials if necessary
     AWSTask *task = [AWSTask taskWithResult:nil];
