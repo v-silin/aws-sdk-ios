@@ -113,7 +113,7 @@ static int defaultChunkSize = 1024;
                 request.HTTPBody = [NSJSONSerialization dataWithJSONObject:bodyParameters
                                                                    options:0
                                                                      error:&error];
-            } else if ([apiRequest.HTTPBody isKindOfClass:[NSDictionary class]]) {
+            } else if ([apiRequest.HTTPBody isKindOfClass:[NSDictionary class]] || [apiRequest.HTTPBody isKindOfClass:NSArray.class]) {
                 request.HTTPBody = [NSJSONSerialization dataWithJSONObject:apiRequest.HTTPBody
                                                                    options:0
                                                                      error:&error];
